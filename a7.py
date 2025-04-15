@@ -77,12 +77,12 @@ class BayesClassifier:
             elif filename.startswith(self.neg_file_prefix):
                 self.update_dict(token, self.neg_freqs)
 
-        print(self.pos_freqs["awesome"])
-        print(self.neg_freqs["awesome"])
-        print(self.pos_freqs["great"])
-        print(self.neg_freqs["great"])
-        print(self.pos_freqs["the"])
-        print(self.neg_freqs["the"])
+        # print(self.pos_freqs["awesome"])
+        # print(self.neg_freqs["awesome"])
+        # print(self.pos_freqs["great"])
+        # print(self.neg_freqs["great"])
+        # print(self.pos_freqs["the"])
+        # print(self.neg_freqs["the"])
 
         # we want to fill pos_freqs and neg_freqs with the correct counts of words from
         # their respective reviews
@@ -127,20 +127,24 @@ class BayesClassifier:
             classification, either positive, negative or neutral
         """
         # TODO: fill me out
-        print(self.pos_freqs)
         
         # get a list of the individual tokens that occur in text
-        
-
+        tokens = self.tokenize(text)
+        print(tokens)
         # create some variables to store the positive and negative probability. since
         # we will be adding logs of probabilities, the initial values for the positive
         # and negative probabilities are set to 0
-        
+        pos_score = 0
+        neg_score = 0
 
         # get the sum of all of the frequencies of the features in each document class
         # (i.e. how many words occurred in all documents for the given class) - this
         # will be used in calculating the probability of each document class given each
         # individual feature
+        pos_total = sum(self.pos_freqs.values())
+        # print(pos_total)
+        neg_total = sum(self.neg_freqs.values())
+        # print(neg_total)
         
 
         # for each token in the text, calculate the probability of it occurring in a
@@ -148,15 +152,28 @@ class BayesClassifier:
         # running sums. when calculating the probabilities, always add 1 to the numerator
         # of each probability for add one smoothing (so that we never have a probability
         # of 0)
+        for token in tokens:
+            pos_freqs = self.pos_freqs.get(token, 0) + 1
+            neg_freqs = self.neg_freqs.get(token, 0) + 1
+
+            # print(pos_freqs, neg_freqs)
+
+            pos_score += math.log(pos_freqs / (pos_total))
+            neg_score += math.log(neg_freqs / neg_total)
+
+            print(pos_score, neg_score)
 
 
         # for debugging purposes, it may help to print the overall positive and negative
         # probabilities
-        
+        # print(pos_score, neg_score)
 
         # determine whether positive or negative was more probable (i.e. which one was
         # larger)
-        
+        if pos_score > neg_score:
+            return "positive"
+        else:
+            return "negative"
 
         # return a string of "positive" or "negative"
 
@@ -296,4 +313,9 @@ if __name__ == "__main__":
     print("\nThe following should all be negative.")
     print(b.classify('rainy days are the worst'))
     print(b.classify('computer science is terrible'))
+    print()
+    
+    print(b.classify("No way should this have beaten Traffic for best movie."))
+    user_review= input("Enter Review ")
+    print(b.classify(user_review))
     pass
